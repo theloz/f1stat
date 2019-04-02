@@ -1,0 +1,64 @@
+#main-container{
+    /* padding: 1%; */
+}
+.bs-card-crop{
+    overflow: auto;
+    width: 25%;
+    height: 140px;
+}
+.panel-profile-img{
+    max-width: 120px;
+}
+/* .all-races-container{
+    margin: 10px 0px;
+} */
+.allraces-header{
+    background-color: rgba(226, 226, 226, 0.6);
+}
+.allraces-footer{
+    background-color: rgba(226, 226, 226, 0.6);
+}
+.allraces-footer > small > a > span.fa-lg,
+#gpweather-index span.fa-lg {
+    vertical-align: middle;
+}
+.allraces-card{
+    background: url(/images/226192.jpg);
+    background-size: cover;
+}
+.allraces-card .card-body-content{
+    background-color: rgba(255,255,255,.8);
+    border-radius: 5px;
+    padding: 1% 2%;
+}
+.allraces-card .card-body-content img{
+    margin: 12% 0px;
+}
+.weather-gradient{
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#cfe7fa+0,6393c1+100;Grey+Blue+3D */
+    background: #cfe7fa; /* Old browsers */
+    background: -moz-linear-gradient(top, #cfe7fa 0%, #6393c1 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #cfe7fa 0%,#6393c1 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #cfe7fa 0%,#6393c1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cfe7fa', endColorstr='#6393c1',GradientType=0 ); /* IE6-9 */
+}
+.weather-cell{
+    background-color: rgba(255,255,255,.6);
+    margin: 1% 0.7%;
+    border-radius: 10px;
+}
+
+#gpweather-index .card {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+.weather-cell > .img-container{
+    min-height: 28%;
+}
+#gpweather-index > .row,
+#gpweather-index > .d-flex {
+    padding: 1% 1%;
+}
+/*common*/
+.txt-white{
+    color: white;
+}
