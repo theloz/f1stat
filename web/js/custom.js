@@ -2,16 +2,23 @@ function raceCountDown(curDate,elID,tz){
     var localOffset = new Date().getTimezoneOffset();
     var tzString = getUtcstring(localOffset)
     // console.log(localOffset);
-
     // Set the date we're counting down to considering timezone
     var countDownDate = new Date(curDate).getTime();
-    countDownDate += ((tz + (localOffset/60))*3600*1000);
-
+    var tzDiff = tz + (localOffset/60);
+    if(localOffset<0){
+        countDownDate -= (tzDiff*3600*1000);
+    }
+    else{
+        countDownDate += (tzDiff*3600*1000);
+    }
+    
+    // console.log('diff: '+ (tz + (localOffset/60)));
     // console.log(tz + (localOffset/60));
     // console.log(countDownDate);
     
     //update the browser racetime
     var browserDate = new Date(countDownDate);
+    console.log('browser date: '+browserDate);
     document.getElementById('localracedt').innerHTML = getTimeString(browserDate) + ' (UTC ' + tzString + ')';
 
     //set the first value before countdown starts to avoid 1 sec delay
@@ -40,6 +47,7 @@ function getTimeString(dttm){
     return bHour + ':' + bMins;
 }
 function getUtcstring(offset){
+    // return ( offset <= 0 ? '+'+(offset/60)*(-1) : (offset/60) );
     return ( offset <= 0 ? '+'+(offset/60)*(-1) : (offset/60) );
 }
 function getTimeDiffString(distance){
