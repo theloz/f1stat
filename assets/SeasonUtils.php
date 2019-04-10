@@ -50,14 +50,19 @@ class SeasonUtils{
         foreach($rac  as $r){
             $dbRaceID = $r['raceId'];
             echo "<pre>";
-            //print_r($r,true);
+            echo "---------------------------------------------------\n";
+            echo "RACEID: $dbRaceID BEGIN \n ";
+            echo "---------------------------------------------------\n";
+
+            //results routine
+            
             $a = new \app\assets\Ergast;
             $curr = $a->callErgast($r['year']."/".$r['round']."/results.json");
-            //$curr = $a->callErgast("2018/15/results.json");
             $jdata = \json_decode($curr);
             $race = $jdata->MRData->RaceTable;
             if(empty($race->Races)){
-                die (\Yii::t('app','Nothing to do'));
+                echo \Yii::t('app','No result to update');
+                continue;
             }
             //echo print_r($race,true);
             //process the results
@@ -66,52 +71,119 @@ class SeasonUtils{
                 $dbDriver = \app\models\Drivers::find()->where(['driverRef'=>$res->Driver->driverId])->one();
                 //get DB constructor ID 
                 $dbConstructor = \app\models\Constructors::find()->where(['constructorRef'=>$res->Constructor->constructorId])->one();
-                // #### WE HAVE TO UPDATE RESULTS BEFORE EVERYTHING ELSE!!!
-                // #### STANDINGS CHANGE FROM RACE TO RACE
-                //update results
+                //get DB result ID
+                $dbStatus = \app\models\Status::find()->where(['status'=>$res->status])->one();
+                // var_dump($dbStatus);
+                //echo "d: ".$res->Driver->driverId." - ID: ".$dbDriver['driverId']." - status: ".$res->status." - statusID: ".$dbStatus['statusId']."\n";
                 
-                // //get DB wins for the driver
-                // $dbdWins = \app\models\Driverstandings::find()
-                // ->join('INNER JOIN', 'races', 'driverstandings.raceId = races.raceId')
-                // ->where(['driverId'=>$dbDriver['driverId']])
-                // ->andWhere(['races.year'=>$r['year']])
-                // ->orderBy('driverstandings.raceId DESC')
-                // ->one();
-                
-                // //get DB wins for constructor
-                // $dbcWins = \app\models\Constructorstandings::find()
-                // ->join('INNER JOIN', 'races', 'constructorstandings.raceId = races.raceId')
-                // ->where(['constructorId'=>$dbConstructor['constructorId']])
-                // ->andWhere(['races.year'=>2018])
-                // // ->andWhere(['races.year'=>$r['year']])
-                // ->orderBy('constructorstandings.raceId DESC')
-                // ->one();
-                // var_dump($dbcWins);
+                //update constructor result
+                $dbConResult = \app\models\Constructorresults::find()->where(['raceId'=>$dbRaceID, 'constructorId'=>$dbConstructor['constructorId']])->one();
+                // var_dump($dbConResult);
+                if($dbConResult){
+                    $dbConResult['points'] = $dbConResult['points'] + $res->points;
+                    if(!$dbConResult->save()){
+                        echo "ERROR: update constructorresult. ConstructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                    }
+                    else{
+                        echo "SUCCESS: constructorresult updated. ConstructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                    }
+                }
+                else{
+                    $db = new \app\models\Constructorresults();
+                    $db->raceId = $dbRaceID;
+                    $db->constructorId = $dbConstructor['constructorId'];
+                    $db->points = $res->points;
+                    $db->status = '';
+                    if(!$db->save()){
+                        echo "ERROR: save constructorresult. ConstructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                    }
+                    else{
+                        echo "SUCCESS: constructorresult inserted. ConstructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                    }
+                }
 
-                // //update diverstandings
-                // $ds = new \app\models\Driverstandings();
-                // $ds->raceId = $dbRaceID;
-                // $ds->driverId = $dbDriver['driverId'];
-                // $ds->points = (int)$res->points + (int)$dbdWins['points'];
-                // $ds->position = $res->position;
-                // $ds->positionText = $res->positionText;
-                // $ds->wins = ($res->position==1) ? (int)$dbdWins['wins'] + 1 : (int)$dbdWins['wins'];
-                // // if(!$ds->save()){
-                // //     echo "###### ERROR ###### -> can't update standings for Driver:  ".$r->Driver->driverId;
-                // // }
-                // //update constructorstandings
-                // $cs = new \app\models\Constructorstandings();
-                // $cs->raceId = $dbRaceID;
-                // $cs->constructorId = $dbConstructor['constructorId'];
-                // $cs->points = (int)$res->points + (int)$dbcWins['points'];
-                
-
-                //echo print_r($res,true);
+                //update driver results
+                $dbResult = new \app\models\Results();
+                $dbResult->raceId = $dbRaceID;
+                $dbResult->driverId = $dbDriver['driverId'];
+                $dbResult->constructorId = $dbConstructor['constructorId'];
+                $dbResult->number = $res->number;
+                $dbResult->grid = $res->grid;
+                $dbResult->position = $res->position;
+                $dbResult->positionText = $res->positionText;
+                $dbResult->positionOrder = $res->position;
+                $dbResult->points = $res->points;
+                $dbResult->laps = $res->laps;
+                $dbResult->time = (isset($res->Time->time) ? $res->Time->time : '');
+                $dbResult->milliseconds = (isset($res->Time->millis) ? $res->Time->millis : '');
+                $dbResult->fastestLap = (isset($res->FastestLap->lap) ? $res->FastestLap->lap : '');
+                $dbResult->rank = (isset($res->FastestLap->rank) ? $res->FastestLap->rank : '');
+                $dbResult->fastestLapSpeed = (isset($res->FastestLap->AverageSpeed->speed) ? $res->FastestLap->AverageSpeed->speed : ''); 
+                $dbResult->fastestLapTime = (isset($res->FastestLap->Time->time) ? $res->FastestLap->Time->time : '');
+                $dbResult->statusId = $dbStatus['statusId'];
+                if(!$dbResult->save()){
+                    echo "ERROR: Impossible to save data for driverresult. DriverID: ".$dbDriver['driverId']." RaceID: $dbRaceID\n";
+                }
+                else{
+                    echo "SUCCESS: Driver result . DriverID: ".$dbDriver['driverId']." RaceID: $dbRaceID\n";
+                }
             }
+
+            //drivers standings routine
+            $curr = $a->callErgast($r['year']."/".$r['round']."/driverStandings.json");
+            $jdata = \json_decode($curr);
+            $stands = $jdata->MRData->StandingsTable;
+            if(empty($stands->StandingsLists)){
+                echo \Yii::t('app','No driver standing to update');
+                continue;
+            }
+            foreach( $stands->StandingsLists[0]->DriverStandings as $res ){
+                //get DB driver ID
+                $dbDriver = \app\models\Drivers::find()->where(['driverRef'=>$res->Driver->driverId])->one();
+                $db = new \app\models\Driverstandings();
+                $db->raceId = $dbRaceID;
+                $db->driverId = $dbDriver['driverId'];
+                $db->points = $res->points;
+                $db->position = $res->position;
+                $db->positionText = $res->positionText;
+                $db->wins = $res->wins;
+                if(!$db->save()){
+                    echo "ERROR on save driverstandings. driverID: ".$dbDriver['driverId'].". RaceID: $dbRaceID\n";
+                }
+                else{
+                    echo "SUCCESS: driverstandings. driverID: ".$dbDriver['driverId'].". RaceID: $dbRaceID\n";
+                }
+            }
+            
+            //constructor standings routine
+            $curr = $a->callErgast($r['year']."/".$r['round']."/constructorStandings.json");
+            $jdata = \json_decode($curr);
+            $stands = $jdata->MRData->StandingsTable;
+            if(empty($stands->StandingsLists)){
+                echo \Yii::t('app','No constructor standing to update');
+                continue;
+            }
+            foreach( $stands->StandingsLists[0]->ConstructorStandings as $res ){
+                //get DB constructor ID 
+                $dbConstructor = \app\models\Constructors::find()->where(['constructorRef'=>$res->Constructor->constructorId])->one();
+                $db = new \app\models\Constructorstandings();
+                $db->raceId = $dbRaceID;
+                $db->constructorId = $dbConstructor['constructorId'];
+                $db->points = $res->points;
+                $db->position = $res->position;
+                $db->positionText = $res->positionText;
+                $db->wins = $res->wins;
+                if(!$db->save()){
+                    echo "ERROR on save constructorstandings. constructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                }
+                else{
+                    echo "SUCCESS: constructorstandings. constructorID: ".$dbConstructor['constructorId'].". RaceID: $dbRaceID\n";
+                }
+            }
+            echo "RACEID: $dbRaceID END \n ";
+            echo "---------------------------------------------------\n";
             echo "</pre>";
         }
-        //look for results on ergast and insert in DB
-        // $curr = file_get_contents("https://ergast.com/api/f1/2019/1/results.json");
-        //echo "<pre>".print_r($curr,true)."</pre>";
+        echo '<br><br><br><a href="/index.php">Back to Home</a>';
     }
 }

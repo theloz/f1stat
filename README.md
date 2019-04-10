@@ -61,13 +61,17 @@ Register an API key for [![My weather](https://developer.weatherunlocked.com/sig
 ### DB modifications
 
 If you plan to install the software from scratch you have to be aware that not all the data from Ergast DB are correct, expecially the circuit countries. 
-In order to match records with timezone DB the following corrections are due
-
+In order to match ergast records with timezone DB the following corrections are due
 ~~~
 UPDATE circuits SET country = 'United States' WHERE country='USA';
 UPDATE circuits SET country = 'United Kingdom' WHERE country='UK';
 UPDATE circuits SET country = 'South Korea' WHERE country='Korea';
 UPDATE circuits SET country = 'United Arab Emirates' WHERE country='UAE';
+~~~
+The following SQL commands fix some ergast issues
+~~~
+INSERT INTO `status` (`status`) VALUES ('Damage');
+UPDATE `races` SET `time` = '14:10:00' WHERE `raceId` = 1012;
 ~~~
 
 Thus is possible to have the correct timezone for the GP timetable
