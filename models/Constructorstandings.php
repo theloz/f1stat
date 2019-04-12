@@ -52,4 +52,10 @@ class Constructorstandings extends \yii\db\ActiveRecord
             'wins' => Yii::t('app', 'Wins'),
         ];
     }
+    public function getRace(){
+        return $this->hasOne(Races::className(), ['raceId' => 'raceId']);
+    }
+    public function getConstructor(){
+        return $this->hasOne(Constructors::className(), ['constructorId' => 'constructorId']);
+    }
 }

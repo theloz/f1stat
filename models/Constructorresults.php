@@ -48,4 +48,10 @@ class Constructorresults extends \yii\db\ActiveRecord
             'status' => Yii::t('app', 'Status'),
         ];
     }
+    public function getRace(){
+        return $this->hasOne(Races::className(), ['raceId' => 'raceId']);
+    }
+    public function getConstructor(){
+        return $this->hasOne(Constructors::className(), ['constructorId' => 'constructorId']);
+    }
 }

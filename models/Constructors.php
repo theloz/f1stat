@@ -47,4 +47,7 @@ class Constructors extends \yii\db\ActiveRecord
             'url' => Yii::t('app', 'Url'),
         ];
     }
+    public function getNation(){
+        return $this->hasOne(Nationalitynation::className(), ['nationality_name' => 'nationality']);
+    }
 }

@@ -62,9 +62,32 @@ class SiteController extends Controller
     public function actionIndex() {
         $nextRace = \app\assets\SeasonUtils::getNextGp();
         $tz = \app\assets\SeasonUtils::getRaceTimezone($nextRace->raceId);
+
+        //last gp result
+        $rac = \app\models\Races::find()
+            ->where( ['<', 'date', new \yii\db\Expression('NOW()')] )
+            ->orderBy('date DESC')
+            ->one()
+        ;
+        $raceId = $rac['raceId'];
+        $driverResults = \app\models\Results::find()->where(['raceId'=>$raceId])->orderBy('position ASC')->limit(10)->all();
+        //$constructorResults = \app\models\Constructorresults::find()->where(['raceId'=>$raceId])->orderBy('points DESC')->limit(10)->all();
+
+        //driver standings
+        $dStands = \app\models\Driverstandings::find()->where(['raceId'=>$raceId])->orderBy('position ASC')->limit(6)->all();
+        //constructors standings
+        $cStands = \app\models\Constructorstandings::find()->where(['raceId'=>$raceId])->orderBy('position ASC')->limit(6)->all();
+
+        //driver of the day
         return $this->render('index', [
+            'raceId' => $raceId,
             'nextRace' => $nextRace,
+            'currentRace' => $rac,
             'tz' => $tz,
+            'driverResults'=> $driverResults,
+            //'constructorResults'=> $constructorResults,
+            'dStands'=> $dStands,
+            'cStands'=> $cStands,
         ]);
     }
 

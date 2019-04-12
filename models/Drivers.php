@@ -58,4 +58,12 @@ class Drivers extends \yii\db\ActiveRecord
             'url' => Yii::t('app', 'Url'),
         ];
     }
+    public function getNation(){
+        return $this->hasOne(Nationalitynation::className(), ['nationality_name' => 'nationality']);
+    }
+    public function getConstructor($raceId){
+        return $this->hasOne(Results::className(), ['driverId' => 'driverId'])
+            ->where(['raceId'=> $raceId])
+            ;
+    }
 }

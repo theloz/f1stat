@@ -26,6 +26,7 @@ DIRECTORY STRUCTURE
       mail/               contains view files for e-mails
       models/             contains model classes
       runtime/            contains files generated during runtime
+      sources/            contains files for integrations
       tests/              contains various tests for the basic application
       vendor/             contains dependent 3rd-party packages
       views/              contains view files for the Web application
@@ -69,6 +70,8 @@ UPDATE circuits SET country = 'South Korea' WHERE country='Korea';
 UPDATE circuits SET country = 'United Arab Emirates' WHERE country='UAE';
 ~~~
 Thus is possible to have the correct timezone for the GP timetable
+
+In order to visualize the correct flags for every nation run the query inside sources/nationalitynation.sql
 
 The following SQL commands fix some ergast issues
 ~~~

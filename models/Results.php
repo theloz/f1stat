@@ -74,4 +74,16 @@ class Results extends \yii\db\ActiveRecord
             'statusId' => Yii::t('app', 'Status ID'),
         ];
     }
+    public function getDriver(){
+        return $this->hasOne(Drivers::className(), ['driverId' => 'driverId']);
+    }
+    public function getRace(){
+        return $this->hasOne(Races::className(), ['raceId' => 'raceId']);
+    }
+    public function getConstructor(){
+        return $this->hasOne(Constructors::className(), ['constructorId' => 'constructorId']);
+    }
+    public function getStatus(){
+        return $this->hasOne(Status::className(), ['statusId' => 'statusId']);
+    }
 }

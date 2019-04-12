@@ -52,4 +52,10 @@ class Driverstandings extends \yii\db\ActiveRecord
             'wins' => Yii::t('app', 'Wins'),
         ];
     }
+    public function getDriver(){
+        return $this->hasOne(Drivers::className(), ['driverId' => 'driverId']);
+    }
+    public function getRace(){
+        return $this->hasOne(Races::className(), ['raceId' => 'raceId']);
+    }
 }
